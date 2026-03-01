@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ActionIcon, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
 
 import IconDarkMode from '~icons/material-symbols/dark-mode';
 import IconLightMode from '~icons/material-symbols/light-mode';
 
 export const DarkModeToggleBtn = () => {
-    const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-    const dark = colorScheme === 'dark';
+    const { toggleColorScheme } = useMantineColorScheme();
+    const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+    const isDark = computedColorScheme === 'dark';
 
     return (
         <ActionIcon
@@ -29,7 +30,7 @@ export const DarkModeToggleBtn = () => {
             variant="light"
             size="sm"
         >
-            {dark ? <IconLightMode /> : <IconDarkMode />}
+            {isDark ? <IconLightMode /> : <IconDarkMode />}
         </ActionIcon>
     );
 };

@@ -28,7 +28,22 @@ import ReactDOM from 'react-dom/client';
 
 import { queryClient, router } from './config/global';
 
-const theme = createTheme({});
+const theme = createTheme({
+  colors: {
+    dark: [
+      '#d9d9d9', // 0: text
+      '#bfbfbf', // 1: text secondary
+      '#a6a6a6', // 2
+      '#8c8c8c', // 3
+      '#424242', // 4: border
+      '#303030', // 5: border secondary
+      '#1f1f1f', // 6: elevated/headers
+      '#141414', // 7: paper / container
+      '#000000', // 8: body / base background
+      '#000000', // 9: deepest
+    ],
+  },
+});
 
 // Render the app
 const rootElement = document.getElementById('root')!;
