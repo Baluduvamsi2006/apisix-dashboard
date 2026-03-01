@@ -16,7 +16,8 @@
  */
 import '@ant-design/v5-patch-for-react-19';
 
-import { ConfigProvider } from 'antd';
+import { useComputedColorScheme } from '@mantine/core';
+import { ConfigProvider, theme } from 'antd';
 import enUS from 'antd/locale/en_US';
 import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,10 @@ import { useTranslation } from 'react-i18next';
 export const AntdConfigProvider = (props: PropsWithChildren) => {
   const { children } = props;
   const { t } = useTranslation();
+  const colorScheme = useComputedColorScheme('light', {
+    getInitialValueInEffect: true,
+  });
+  const isDark = colorScheme === 'dark';
 
   return (
     <ConfigProvider
@@ -31,8 +36,13 @@ export const AntdConfigProvider = (props: PropsWithChildren) => {
       locale={enUS}
       renderEmpty={() => <div>{t('noData')}</div>}
       theme={{
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
           borderRadiusSM: 2,
+          colorBgBase: isDark ? '#1a1b1e' : '#ffffff',
+          colorBgContainer: isDark ? '#25262b' : '#ffffff',
+          colorBorder: isDark ? '#373a40' : '#d9d9d9',
+          colorBorderSecondary: isDark ? '#373a40' : '#f0f0f0',
         },
       }}
     >
