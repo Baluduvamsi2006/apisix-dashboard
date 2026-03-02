@@ -21,14 +21,16 @@ import IconLightMode from '~icons/material-symbols/light-mode';
 
 export const DarkModeToggleBtn = () => {
     const { toggleColorScheme } = useMantineColorScheme();
-    const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+    const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: false });
     const isDark = computedColorScheme === 'dark';
+    const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
 
     return (
         <ActionIcon
             onClick={() => toggleColorScheme()}
             variant="light"
             size="sm"
+            aria-label={label}
         >
             {isDark ? <IconLightMode /> : <IconDarkMode />}
         </ActionIcon>

@@ -26,7 +26,7 @@ export const AntdConfigProvider = (props: PropsWithChildren) => {
   const { children } = props;
   const { t } = useTranslation();
   const colorScheme = useComputedColorScheme('light', {
-    getInitialValueInEffect: true,
+    getInitialValueInEffect: false,
   });
   const isDark = colorScheme === 'dark';
   const mantineTheme = useMantineTheme();
