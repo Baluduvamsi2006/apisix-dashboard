@@ -22,17 +22,17 @@ import IconLightMode from '~icons/material-symbols/light-mode';
 export const DarkModeToggleBtn = () => {
     const { toggleColorScheme } = useMantineColorScheme();
     const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: false });
-    const isDark = computedColorScheme === 'dark';
-    const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+  const { toggleColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const isDark = computedColorScheme === 'dark';
 
-    return (
-        <ActionIcon
-            onClick={() => toggleColorScheme()}
-            variant="light"
-            size="sm"
-            aria-label={label}
-        >
-            {isDark ? <IconLightMode /> : <IconDarkMode />}
-        </ActionIcon>
-    );
+  return (
+    <ActionIcon
+      onClick={() => toggleColorScheme()}
+      variant="light"
+      size="sm"
+    >
+      {isDark ? <IconLightMode /> : <IconDarkMode />}
+    </ActionIcon>
+  );
 };
