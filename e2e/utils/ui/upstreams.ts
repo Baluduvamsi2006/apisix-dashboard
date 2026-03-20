@@ -238,11 +238,11 @@ export async function uiFillUpstreamAllFields(
     await tlsSection
       .getByRole('textbox', { name: 'Client Key', exact: true })
       .fill(tls.key);
-    const verifySwitch = tlsSection.getByRole('switch', { name: 'Verify' });
+    const verifyToggle = tlsSection.getByTestId('upstream-tls-verify-switch');
+    const verifySwitch = verifyToggle.getByRole('switch');
     if (!(await verifySwitch.isChecked())) {
-      const verifyLabel = tlsSection.locator('label:has-text("Verify")').first();
-      await verifyLabel.scrollIntoViewIfNeeded();
-      await verifyLabel.click();
+      await verifyToggle.scrollIntoViewIfNeeded();
+      await verifyToggle.click();
     }
     await expect(verifySwitch).toBeChecked();
 
