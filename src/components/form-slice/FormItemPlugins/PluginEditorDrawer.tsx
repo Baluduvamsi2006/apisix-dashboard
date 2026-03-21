@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Drawer, Group, Title } from '@mantine/core';
+import { Drawer, Group, SegmentedControl, Stack, Title } from '@mantine/core';
 import { isEmpty, isNil } from 'rambdax';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +24,7 @@ import { FormSubmitBtn } from '@/components/form/Btn';
 import { FormItemEditor } from '@/components/form/Editor';
 
 import type { PluginCardListProps } from './PluginCardList';
+import { SchemaFormPrototype } from './SchemaFormPrototype';
 
 export type PluginConfig = { name: string; config: object };
 export type PluginEditorDrawerProps = Pick<PluginCardListProps, 'mode'> & {
@@ -41,6 +42,21 @@ export const PluginEditorDrawer = (props: PluginEditorDrawerProps) => {
   const { opened, onSave, onClose, plugin, mode, schema } = props;
   const { name, config } = plugin;
   const { t } = useTranslation();
+  const [editorMode, setEditorMode] = useState<'schema' | 'json'>('schema');
+  const [schemaValue, setSchemaValue] = useState<object>(
+    !isEmpty(config) && !isNil(config) ? config : {}
+  );
+  const hasSchemaProperties = useMemo(() => {
+    if (!schema || typeof schema !== 'object') return false;
+    const properties = (schema as { properties?: unknown }).properties;
+    return Boolean(
+      properties &&
+        typeof properties === 'object' &&
+        !Array.isArray(properties) &&
+        Object.keys(properties).length
+    );
+  }, [schema]);
+
   const methods = useForm<{ config: string }>({
     criteriaMode: 'all',
     disabled: mode === 'view',
@@ -53,7 +69,17 @@ export const PluginEditorDrawer = (props: PluginEditorDrawerProps) => {
 
   useEffect(() => {
     methods.setValue('config', toConfigStr(config));
+    setSchemaValue(!isEmpty(config) && !isNil(config) ? config : {});
   }, [config, methods]);
+
+  useEffect(() => {
+    if (!opened) return;
+    if (!hasSchemaProperties) {
+      setEditorMode('json');
+      return;
+    }
+    setEditorMode('schema');
+  }, [hasSchemaProperties, opened]);
 
   return (
     <Drawer
@@ -72,15 +98,46 @@ export const PluginEditorDrawer = (props: PluginEditorDrawerProps) => {
       <Title order={3} mb={10}>
         {name}
       </Title>
+      {hasSchemaProperties && (
+        <SegmentedControl
+          mb="sm"
+          value={editorMode}
+          onChange={(val) => setEditorMode(val as 'schema' | 'json')}
+          data={[
+            { label: 'Prototype Schema Form', value: 'schema' },
+            { label: 'Raw JSON', value: 'json' },
+          ]}
+        />
+      )}
       <FormProvider {...methods}>
         <form>
-          <FormItemEditor
-            name="config"
-            h={500}
-            customSchema={schema}
-            isLoading={!schema}
-            required
-          />
+          <Stack>
+            {editorMode === 'schema' && hasSchemaProperties ? (
+              <SchemaFormPrototype
+                schema={schema}
+                value={
+                  typeof schemaValue === 'object' && !Array.isArray(schemaValue)
+                    ? (schemaValue as Record<string, unknown>)
+                    : {}
+                }
+                onChange={(next) => {
+                  setSchemaValue(next);
+                  methods.setValue('config', JSON.stringify(next, null, 2), {
+                    shouldDirty: true,
+                  });
+                }}
+                disabled={mode === 'view'}
+              />
+            ) : (
+              <FormItemEditor
+                name="config"
+                h={500}
+                customSchema={schema}
+                isLoading={!schema}
+                required
+              />
+            )}
+          </Stack>
         </form>
 
         {mode !== 'view' && (
@@ -89,7 +146,17 @@ export const PluginEditorDrawer = (props: PluginEditorDrawerProps) => {
               size="xs"
               variant="light"
               onClick={methods.handleSubmit(({ config }) => {
-                onSave({ name, config: JSON.parse(config) });
+                if (editorMode === 'schema' && hasSchemaProperties) {
+                  onSave({
+                    name,
+                    config:
+                      typeof schemaValue === 'object' && !Array.isArray(schemaValue)
+                        ? (schemaValue as object)
+                        : {},
+                  });
+                } else {
+                  onSave({ name, config: JSON.parse(config) });
+                }
                 handleClose();
               })}
             >

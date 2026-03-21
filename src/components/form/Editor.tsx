@@ -99,12 +99,33 @@ export const FormItemEditor = <T extends FieldValues>(
         schema: customSchema,
       });
     }
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-      validate: true,
-      schemas,
-      trailingCommas: 'error',
-      enableSchemaRequest: false,
-    });
+    const jsonDefaults = (
+      monaco.languages as unknown as {
+        json?: {
+          jsonDefaults?: {
+            setDiagnosticsOptions: (options: {
+              validate: boolean;
+              schemas: {
+                uri: string;
+                fileMatch: string[];
+                schema: object;
+              }[];
+              trailingCommas: 'error';
+              enableSchemaRequest: boolean;
+            }) => void;
+          };
+        };
+      }
+    ).json?.jsonDefaults;
+
+    if (jsonDefaults) {
+      jsonDefaults.setDiagnosticsOptions({
+        validate: true,
+        schemas,
+        trailingCommas: 'error',
+        enableSchemaRequest: false,
+      });
+    }
 
     setLoading(false);
   }, [customSchema]);
